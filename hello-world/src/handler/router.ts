@@ -4,7 +4,7 @@ import { DbService } from '@services/DbService';
 import { ResponseObj } from '@interfaces/s3ServiceConfig';
 import { v4 as uuidv4 } from 'uuid';
 
-const config = { region: 'us-east-1', accessKeyId: 'AKIAQ3AXJBWPLFU7WA4R', secretAccessKey: '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' };
+const config = { region: 'us-east-1', accessKeyId: '', secretAccessKey: '' };
 const bucketName = process.env.BUCKET_NAME!;
 const tableName = process.env.TABLE_NAME!;
 const s3 = new S3Service(config, bucketName);
