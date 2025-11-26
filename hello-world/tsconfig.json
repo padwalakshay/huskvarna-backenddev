@@ -13,6 +13,7 @@
       "forceConsistentCasingInFileNames": true,
       "baseUrl": "./",
       "paths": {
+        "@handler/*": ["src/handler/*"],
         "@services/*": ["src/services/*"],
         "@interfaces/*": ["src/interfaces/*"]
       }
