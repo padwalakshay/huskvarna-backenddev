@@ -104,7 +104,7 @@ Resources:
       FunctionName: HuskvarnaFunction
       Role: !GetAtt LambdaExecutionRole.Arn
       CodeUri: hello-world/          # same as original template
-      Handler: app.lambdaHandler    # as in original Hello World TS template
+      Handler: app.handler
       Runtime: nodejs22.x
       Architectures:
         - x86_64
