@@ -1,0 +1,142 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-huskvarna
+  Extended Hello World + S3 + DynamoDB + Function URL + IAM Role
+
+Globals:
+  Function:
+    Timeout: 3
+    LoggingConfig:
+      LogFormat: JSON
+
+Resources:
+  # S3 bucket for uploads
+  ImageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: upload-huskvarna-images
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  ImageBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ImageBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"                # allows anyone to read
+            Action:
+              - s3:GetObject
+            Resource: !Sub "arn:aws:s3:::${ImageBucket}/*"
+
+  # DynamoDB table
+  ImagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ImagesHuskvarna
+      AttributeDefinitions:
+        - AttributeName: userid
+          AttributeType: N
+        - AttributeName: imageid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userid
+          KeyType: HASH
+        - AttributeName: imageid
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  # IAM Role for Lambda — to get S3, DynamoDB, CloudWatch permissions
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: LambdaS3DynamoDBPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # S3 permissions
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub arn:aws:s3:::${ImageBucket}/*
+              # DynamoDB permissions
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:DeleteItem
+                Resource:
+                  - !GetAtt ImagesTable.Arn
+              # CloudWatch Logs permissions
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+
+  # Lambda function, using Function URL instead of API Gateway
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: HuskvarnaFunction
+      Role: !GetAtt LambdaExecutionRole.Arn
+      CodeUri: hello-world/          # same as original template
+      Handler: app.lambdaHandler    # as in original Hello World TS template
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref ImageBucket
+          TABLE_NAME: !Ref ImagesTable
+      FunctionUrlConfig:
+        AuthType: NONE    # open access — change as needed
+      # (Remove original API Gateway Events block, since using Function URL)
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        External:
+          - "@aws-sdk/client-s3"
+          - "@aws-sdk/lib-dynamodb"
+          - "@aws-sdk/client-dynamodb"
+        EntryPoints:
+          - app.ts             # assuming entrypoint file is app.ts
+
+Outputs:
+  FunctionUrl:
+    Description: "Lambda Function URL"
+    Value: !GetAtt HelloWorldFunctionUrl.FunctionUrl
+
+  S3Bucket:
+    Description: "S3 bucket for images"
+    Value: !Ref ImageBucket
+
+  DynamoDBTable:
+    Description: "DynamoDB table name"
+    Value: !Ref ImagesTable
