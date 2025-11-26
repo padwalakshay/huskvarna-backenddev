@@ -1,0 +1,23 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/getImage",
+  "rawQueryString": "parameter1=value1&parameter2=value2",
+  "cookies": [
+    "cookie1",
+    "cookie2=someValue"
+  ],
+  "queryStringParameters": {
+    "userid": 5
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "abcdefg",
+    "domainName": "abcdefg.lambda-url.us-east-1.on.aws",
+    "domainPrefix": "abcdefg",
+    "http": {
+      "method": "GET",
+      "path": "/my/path"
+    }
+  }
+}
