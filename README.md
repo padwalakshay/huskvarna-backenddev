@@ -1,4 +1,4 @@
-<h1>Image Upload Service (AWS Lambda + S3 + DynamoDB)</h1>
+<h1>Image Upload Service (AWS Lambda Functional Url + S3 + DynamoDB)</h1>
 
 <p>
 This project provides a simple system for uploading images to an Amazon S3 bucket and saving metadata to DynamoDB.  
@@ -56,3 +56,4 @@ All logic runs through a Lambda function deployed using AWS SAM.
 <h2>Notes</h2>
 <p>Configure AWS credentials using:</p>
 <pre>aws configure</pre>
+
