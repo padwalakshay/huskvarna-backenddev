@@ -103,7 +103,7 @@ Resources:
     Properties:
       FunctionName: HuskvarnaFunction
       Role: !GetAtt LambdaExecutionRole.Arn
-      CodeUri: hello-world/          # same as original template
+      CodeUri: image-uploader/       # same as original template
       Handler: app.handler
       Runtime: nodejs22.x
       Architectures:
