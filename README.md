@@ -57,3 +57,6 @@ All logic runs through a Lambda function deployed using AWS SAM.
 <p>Configure AWS credentials using:</p>
 <pre>aws configure</pre>
 
+<b><p>In Case if the code is throwing accesskey error: then please update your credentials in router.ts file, please run <pre>sam build and sam deploy</pre> from root folder</p></b>
+
+
